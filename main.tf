@@ -176,3 +176,63 @@ resource "azurerm_virtual_desktop_host_pool_registration_info" "this" {
   hostpool_id     = azurerm_virtual_desktop_host_pool.this.id
   expiration_date = each.value.expiration_date
 }
+
+# role assignments
+resource "azurerm_role_assignment" "this" {
+  for_each = merge(
+    { for k, v in var.host_pool.role_assignments : "host_pool.${k}" => merge(v, { scope = azurerm_virtual_desktop_host_pool.this.id }) },
+    merge([for gk, g in var.host_pool.application_groups : { for k, v in g.role_assignments : "application_groups.${gk}.${k}" => merge(v, { scope = azurerm_virtual_desktop_application_group.this[gk].id }) }]...),
+    merge([for wk, w in var.host_pool.workspaces : { for k, v in w.role_assignments : "workspaces.${wk}.${k}" => merge(v, { scope = azurerm_virtual_desktop_workspace.this[wk].id }) }]...)
+  )
+
+  scope                                  = each.value.scope
+  principal_id                           = each.value.principal_id
+  role_definition_id                     = strcontains(lower(each.value.role_definition_id_or_name), "/providers/microsoft.authorization/roledefinitions/") ? each.value.role_definition_id_or_name : null
+  role_definition_name                   = strcontains(lower(each.value.role_definition_id_or_name), "/providers/microsoft.authorization/roledefinitions/") ? null : each.value.role_definition_id_or_name
+  description                            = each.value.description
+  skip_service_principal_aad_check       = each.value.skip_service_principal_aad_check
+  condition                              = each.value.condition
+  condition_version                      = each.value.condition_version
+  delegated_managed_identity_resource_id = each.value.delegated_managed_identity_resource_id
+  principal_type                         = each.value.principal_type
+}
+
+# diagnostic settings
+resource "azurerm_monitor_diagnostic_setting" "this" {
+  for_each = merge(
+    { for k, v in var.host_pool.diagnostic_settings : "host_pool.${k}" => merge(v, { target_resource_id = azurerm_virtual_desktop_host_pool.this.id }) },
+    merge([for gk, g in var.host_pool.application_groups : { for k, v in g.diagnostic_settings : "application_groups.${gk}.${k}" => merge(v, { target_resource_id = azurerm_virtual_desktop_application_group.this[gk].id }) }]...),
+    merge([for wk, w in var.host_pool.workspaces : { for k, v in w.diagnostic_settings : "workspaces.${wk}.${k}" => merge(v, { target_resource_id = azurerm_virtual_desktop_workspace.this[wk].id }) }]...)
+  )
+
+  name                           = each.value.name
+  target_resource_id             = each.value.target_resource_id
+  log_analytics_workspace_id     = each.value.log_analytics_workspace_id
+  storage_account_id             = each.value.storage_account_id
+  eventhub_authorization_rule_id = each.value.eventhub_authorization_rule_id
+  eventhub_name                  = each.value.eventhub_name
+
+  dynamic "enabled_log" {
+    for_each = each.value.log_categories
+
+    content {
+      category = enabled_log.value
+    }
+  }
+
+  dynamic "enabled_log" {
+    for_each = each.value.log_groups
+
+    content {
+      category_group = enabled_log.value
+    }
+  }
+
+  dynamic "enabled_metric" {
+    for_each = each.value.metric_categories
+
+    content {
+      category = enabled_metric.value
+    }
+  }
+}

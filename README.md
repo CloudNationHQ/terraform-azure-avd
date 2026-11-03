@@ -35,6 +35,8 @@ The following providers are used by this module:
 
 The following resources are used by this module:
 
+- [azurerm_monitor_diagnostic_setting.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) (resource)
+- [azurerm_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
 - [azurerm_virtual_desktop_application.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_desktop_application) (resource)
 - [azurerm_virtual_desktop_application_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_desktop_application_group) (resource)
 - [azurerm_virtual_desktop_host_pool.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_desktop_host_pool) (resource)
@@ -72,6 +74,26 @@ object({
     public_network_access            = optional(string)
     start_vm_on_connect              = optional(bool)
     vm_template                      = optional(string)
+    role_assignments = optional(map(object({
+      role_definition_id_or_name             = string
+      principal_id                           = string
+      description                            = optional(string)
+      skip_service_principal_aad_check       = optional(bool)
+      condition                              = optional(string)
+      condition_version                      = optional(string)
+      delegated_managed_identity_resource_id = optional(string)
+      principal_type                         = optional(string)
+    })), {})
+    diagnostic_settings = optional(map(object({
+      name                           = string
+      log_analytics_workspace_id     = optional(string)
+      storage_account_id             = optional(string)
+      eventhub_authorization_rule_id = optional(string)
+      eventhub_name                  = optional(string)
+      log_categories                 = optional(set(string), [])
+      log_groups                     = optional(set(string), ["allLogs"])
+      metric_categories              = optional(set(string), ["AllMetrics"])
+    })), {})
     scheduled_agent_updates = optional(object({
       enabled                   = optional(bool)
       timezone                  = optional(string)
@@ -94,6 +116,26 @@ object({
       description                  = optional(string)
       default_desktop_display_name = optional(string)
       workspace_key                = optional(string)
+      role_assignments = optional(map(object({
+        role_definition_id_or_name             = string
+        principal_id                           = string
+        description                            = optional(string)
+        skip_service_principal_aad_check       = optional(bool)
+        condition                              = optional(string)
+        condition_version                      = optional(string)
+        delegated_managed_identity_resource_id = optional(string)
+        principal_type                         = optional(string)
+      })), {})
+      diagnostic_settings = optional(map(object({
+        name                           = string
+        log_analytics_workspace_id     = optional(string)
+        storage_account_id             = optional(string)
+        eventhub_authorization_rule_id = optional(string)
+        eventhub_name                  = optional(string)
+        log_categories                 = optional(set(string), [])
+        log_groups                     = optional(set(string), ["allLogs"])
+        metric_categories              = optional(set(string), ["AllMetrics"])
+      })), {})
     })), {})
     applications = optional(map(object({
       name                         = string
@@ -115,6 +157,26 @@ object({
       friendly_name                 = optional(string)
       description                   = optional(string)
       public_network_access_enabled = optional(bool)
+      role_assignments = optional(map(object({
+        role_definition_id_or_name             = string
+        principal_id                           = string
+        description                            = optional(string)
+        skip_service_principal_aad_check       = optional(bool)
+        condition                              = optional(string)
+        condition_version                      = optional(string)
+        delegated_managed_identity_resource_id = optional(string)
+        principal_type                         = optional(string)
+      })), {})
+      diagnostic_settings = optional(map(object({
+        name                           = string
+        log_analytics_workspace_id     = optional(string)
+        storage_account_id             = optional(string)
+        eventhub_authorization_rule_id = optional(string)
+        eventhub_name                  = optional(string)
+        log_categories                 = optional(set(string), [])
+        log_groups                     = optional(set(string), ["allLogs"])
+        metric_categories              = optional(set(string), ["AllMetrics"])
+      })), {})
     })), {})
     scaling_plan = optional(object({
       name                = string
@@ -190,6 +252,10 @@ Description: virtual desktop application groups
 
 Description: virtual desktop applications
 
+### <a name="output_diagnostic_settings"></a> [diagnostic\_settings](#output\_diagnostic\_settings)
+
+Description: diagnostic settings
+
 ### <a name="output_host_pool"></a> [host\_pool](#output\_host\_pool)
 
 Description: virtual desktop host pool
@@ -197,6 +263,10 @@ Description: virtual desktop host pool
 ### <a name="output_registration_info"></a> [registration\_info](#output\_registration\_info)
 
 Description: host pool registration info
+
+### <a name="output_role_assignments"></a> [role\_assignments](#output\_role\_assignments)
+
+Description: role assignments
 
 ### <a name="output_scaling_plan"></a> [scaling\_plan](#output\_scaling\_plan)
 

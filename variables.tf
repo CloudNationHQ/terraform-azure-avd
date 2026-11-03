@@ -34,6 +34,26 @@ variable "host_pool" {
     public_network_access            = optional(string)
     start_vm_on_connect              = optional(bool)
     vm_template                      = optional(string)
+    role_assignments = optional(map(object({
+      role_definition_id_or_name             = string
+      principal_id                           = string
+      description                            = optional(string)
+      skip_service_principal_aad_check       = optional(bool)
+      condition                              = optional(string)
+      condition_version                      = optional(string)
+      delegated_managed_identity_resource_id = optional(string)
+      principal_type                         = optional(string)
+    })), {})
+    diagnostic_settings = optional(map(object({
+      name                           = string
+      log_analytics_workspace_id     = optional(string)
+      storage_account_id             = optional(string)
+      eventhub_authorization_rule_id = optional(string)
+      eventhub_name                  = optional(string)
+      log_categories                 = optional(set(string), [])
+      log_groups                     = optional(set(string), ["allLogs"])
+      metric_categories              = optional(set(string), ["AllMetrics"])
+    })), {})
     scheduled_agent_updates = optional(object({
       enabled                   = optional(bool)
       timezone                  = optional(string)
@@ -56,6 +76,26 @@ variable "host_pool" {
       description                  = optional(string)
       default_desktop_display_name = optional(string)
       workspace_key                = optional(string)
+      role_assignments = optional(map(object({
+        role_definition_id_or_name             = string
+        principal_id                           = string
+        description                            = optional(string)
+        skip_service_principal_aad_check       = optional(bool)
+        condition                              = optional(string)
+        condition_version                      = optional(string)
+        delegated_managed_identity_resource_id = optional(string)
+        principal_type                         = optional(string)
+      })), {})
+      diagnostic_settings = optional(map(object({
+        name                           = string
+        log_analytics_workspace_id     = optional(string)
+        storage_account_id             = optional(string)
+        eventhub_authorization_rule_id = optional(string)
+        eventhub_name                  = optional(string)
+        log_categories                 = optional(set(string), [])
+        log_groups                     = optional(set(string), ["allLogs"])
+        metric_categories              = optional(set(string), ["AllMetrics"])
+      })), {})
     })), {})
     applications = optional(map(object({
       name                         = string
@@ -77,6 +117,26 @@ variable "host_pool" {
       friendly_name                 = optional(string)
       description                   = optional(string)
       public_network_access_enabled = optional(bool)
+      role_assignments = optional(map(object({
+        role_definition_id_or_name             = string
+        principal_id                           = string
+        description                            = optional(string)
+        skip_service_principal_aad_check       = optional(bool)
+        condition                              = optional(string)
+        condition_version                      = optional(string)
+        delegated_managed_identity_resource_id = optional(string)
+        principal_type                         = optional(string)
+      })), {})
+      diagnostic_settings = optional(map(object({
+        name                           = string
+        log_analytics_workspace_id     = optional(string)
+        storage_account_id             = optional(string)
+        eventhub_authorization_rule_id = optional(string)
+        eventhub_name                  = optional(string)
+        log_categories                 = optional(set(string), [])
+        log_groups                     = optional(set(string), ["allLogs"])
+        metric_categories              = optional(set(string), ["AllMetrics"])
+      })), {})
     })), {})
     scaling_plan = optional(object({
       name                = string
