@@ -17,8 +17,13 @@ module "rg" {
   }
 }
 
+resource "time_rotating" "this" {
+  rotation_days = 27
+}
+
 module "avd" {
-  source = "../../"
+  source  = "cloudnationhq/avd/azure"
+  version = "~> 1.0"
 
   host_pool = {
     name                     = module.naming.virtual_desktop_host_pool.name_unique
@@ -31,7 +36,7 @@ module "avd" {
     custom_rdp_properties    = "audiocapturemode:i:1;audiomode:i:0;"
 
     registration_info = {
-      expiration_date = timeadd(timestamp(), "48h")
+      expiration_date = time_rotating.this.rotation_rfc3339
     }
 
     scheduled_agent_updates = {

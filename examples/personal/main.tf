@@ -18,7 +18,8 @@ module "rg" {
 }
 
 module "avd" {
-  source = "../../"
+  source  = "cloudnationhq/avd/azure"
+  version = "~> 1.0"
 
   host_pool = {
     name                             = module.naming.virtual_desktop_host_pool.name_unique

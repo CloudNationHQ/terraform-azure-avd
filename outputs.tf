@@ -26,15 +26,5 @@ output "workspaces" {
 
 output "scaling_plan" {
   description = "virtual desktop scaling plan"
-  value       = azurerm_virtual_desktop_scaling_plan.this
-}
-
-output "role_assignments" {
-  description = "role assignments"
-  value       = azurerm_role_assignment.this
-}
-
-output "diagnostic_settings" {
-  description = "diagnostic settings"
-  value       = azurerm_monitor_diagnostic_setting.this
+  value       = azurerm_virtual_desktop_scaling_plan.this["this"]
 }

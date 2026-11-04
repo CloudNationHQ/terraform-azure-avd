@@ -34,26 +34,6 @@ variable "host_pool" {
     public_network_access            = optional(string)
     start_vm_on_connect              = optional(bool)
     vm_template                      = optional(string)
-    role_assignments = optional(map(object({
-      role_definition_id_or_name             = string
-      principal_id                           = string
-      description                            = optional(string)
-      skip_service_principal_aad_check       = optional(bool)
-      condition                              = optional(string)
-      condition_version                      = optional(string)
-      delegated_managed_identity_resource_id = optional(string)
-      principal_type                         = optional(string)
-    })), {})
-    diagnostic_settings = optional(map(object({
-      name                           = string
-      log_analytics_workspace_id     = optional(string)
-      storage_account_id             = optional(string)
-      eventhub_authorization_rule_id = optional(string)
-      eventhub_name                  = optional(string)
-      log_categories                 = optional(set(string), [])
-      log_groups                     = optional(set(string), ["allLogs"])
-      metric_categories              = optional(set(string), ["AllMetrics"])
-    })), {})
     scheduled_agent_updates = optional(object({
       enabled                   = optional(bool)
       timezone                  = optional(string)
@@ -76,26 +56,6 @@ variable "host_pool" {
       description                  = optional(string)
       default_desktop_display_name = optional(string)
       workspace_key                = optional(string)
-      role_assignments = optional(map(object({
-        role_definition_id_or_name             = string
-        principal_id                           = string
-        description                            = optional(string)
-        skip_service_principal_aad_check       = optional(bool)
-        condition                              = optional(string)
-        condition_version                      = optional(string)
-        delegated_managed_identity_resource_id = optional(string)
-        principal_type                         = optional(string)
-      })), {})
-      diagnostic_settings = optional(map(object({
-        name                           = string
-        log_analytics_workspace_id     = optional(string)
-        storage_account_id             = optional(string)
-        eventhub_authorization_rule_id = optional(string)
-        eventhub_name                  = optional(string)
-        log_categories                 = optional(set(string), [])
-        log_groups                     = optional(set(string), ["allLogs"])
-        metric_categories              = optional(set(string), ["AllMetrics"])
-      })), {})
     })), {})
     applications = optional(map(object({
       name                         = string
@@ -117,26 +77,6 @@ variable "host_pool" {
       friendly_name                 = optional(string)
       description                   = optional(string)
       public_network_access_enabled = optional(bool)
-      role_assignments = optional(map(object({
-        role_definition_id_or_name             = string
-        principal_id                           = string
-        description                            = optional(string)
-        skip_service_principal_aad_check       = optional(bool)
-        condition                              = optional(string)
-        condition_version                      = optional(string)
-        delegated_managed_identity_resource_id = optional(string)
-        principal_type                         = optional(string)
-      })), {})
-      diagnostic_settings = optional(map(object({
-        name                           = string
-        log_analytics_workspace_id     = optional(string)
-        storage_account_id             = optional(string)
-        eventhub_authorization_rule_id = optional(string)
-        eventhub_name                  = optional(string)
-        log_categories                 = optional(set(string), [])
-        log_groups                     = optional(set(string), ["allLogs"])
-        metric_categories              = optional(set(string), ["AllMetrics"])
-      })), {})
     })), {})
     scaling_plan = optional(object({
       name                = string
@@ -147,8 +87,8 @@ variable "host_pool" {
       friendly_name       = optional(string)
       description         = optional(string)
       exclusion_tag       = optional(string)
-      enabled             = optional(bool)
-      schedule = object({
+      enabled             = bool
+      schedule = map(object({
         name                                 = string
         days_of_week                         = set(string)
         ramp_up_start_time                   = string
@@ -167,62 +107,7 @@ variable "host_pool" {
         ramp_down_stop_hosts_when            = string
         off_peak_start_time                  = string
         off_peak_load_balancing_algorithm    = string
-      })
+      }))
     }))
   })
-
-  validation {
-    condition     = lookup(var.host_pool, "location", null) != null || var.location != null
-    error_message = "location must be set on var.host_pool.location or on the module-level var.location."
-  }
-
-  validation {
-    condition     = lookup(var.host_pool, "resource_group_name", null) != null || var.resource_group_name != null
-    error_message = "resource_group_name must be set on var.host_pool.resource_group_name or on the module-level var.resource_group_name."
-  }
-
-  validation {
-    condition     = contains(["Personal", "Pooled"], var.host_pool.type)
-    error_message = "type must be Personal or Pooled."
-  }
-
-  validation {
-    condition     = contains(["BreadthFirst", "DepthFirst", "Persistent"], var.host_pool.load_balancer_type)
-    error_message = "load_balancer_type must be BreadthFirst, DepthFirst or Persistent."
-  }
-
-  validation {
-    condition     = var.host_pool.personal_desktop_assignment_type == null || contains(["Automatic", "Direct"], var.host_pool.personal_desktop_assignment_type)
-    error_message = "personal_desktop_assignment_type must be Automatic or Direct."
-  }
-
-  validation {
-    condition     = var.host_pool.preferred_app_group_type == null || contains(["Desktop", "RailApplications", "None"], var.host_pool.preferred_app_group_type)
-    error_message = "preferred_app_group_type must be Desktop, RailApplications or None."
-  }
-
-  validation {
-    condition     = var.host_pool.public_network_access == null || contains(["Enabled", "Disabled", "EnabledForSessionHostsOnly", "EnabledForClientsOnly"], var.host_pool.public_network_access)
-    error_message = "public_network_access must be Enabled, Disabled, EnabledForSessionHostsOnly or EnabledForClientsOnly."
-  }
-
-  validation {
-    condition     = alltrue([for g in values(var.host_pool.application_groups) : contains(["Desktop", "RemoteApp"], g.type)])
-    error_message = "application_groups[*].type must be Desktop or RemoteApp."
-  }
-
-  validation {
-    condition     = alltrue([for a in values(var.host_pool.applications) : contains(["DoNotAllow", "Allow", "Require"], a.command_line_argument_policy)])
-    error_message = "applications[*].command_line_argument_policy must be DoNotAllow, Allow or Require."
-  }
-
-  validation {
-    condition     = alltrue([for a in values(var.host_pool.applications) : contains(keys(var.host_pool.application_groups), a.application_group_key)])
-    error_message = "applications[*].application_group_key must reference a key in application_groups."
-  }
-
-  validation {
-    condition     = alltrue([for g in values(var.host_pool.application_groups) : g.workspace_key == null || contains(keys(var.host_pool.workspaces), g.workspace_key)])
-    error_message = "application_groups[*].workspace_key must reference a key in workspaces."
-  }
 }
